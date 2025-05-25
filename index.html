@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador Financeiro Pessoal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="calculadora.png" type="image/x-icon">
+    <style>
+        :root {
+            --primary-color: #abe8d9;
+            --primary-dark: #a1d9cb;
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --light-gray: #e9ecef;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0 15px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .nav-tab {
+            padding: 1rem;
+            text-align: center;
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .balance {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 1rem 0;
+            color: var(--text-color);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .list {
+            list-style: none;
+        }
+
+        .list-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .chart-container {
+            height: 250px;
+            margin-top: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 750px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                max-width: 970px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1170px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Organizador Financeiro</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-tab="dashboard">Dashboard</div>
+            <div class="nav-tab" data-tab="cards">Cartões</div>
+            <div class="nav-tab" data-tab="bills">Contas</div>
+            <div class="nav-tab" data-tab="transactions">Lançamentos</div>
+            <div class="nav-tab" data-tab="reports">Relatórios</div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <h2 class="card-title">Saldo Atual</h2>
+                <div class="balance" id="current-balance">R$ 0,00</div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Meus Cartões</h2>
+                <ul class="list" id="cards-summary">
+                    <li class="list-item">Nenhum cartão cadastrado</li>
+                </ul>
+                <button class="btn btn-block" onclick="showTab('cards')">Ver Todos</button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Despesas do Mês</h2>
+                <div class="chart-container" id="expenses-chart">
+                    <!-- Gráfico será renderizado aqui -->
+                    <p style="text-align: center;">Nenhuma despesa registrada este mês</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Contas Pendentes</h2>
+                <ul class="list" id="pending-bills">
+                    <li class="list-item">Nenhuma conta pendente</li>
+                </ul>
+                <button class="btn btn-block" onclick="showTab('bills')">Ver Todas</button>
+            </div>
+        </div>
+
+        <!-- Cartões Tab -->
+        <div id="cards" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Adicionar Cartão</h2>
+                <form id="add-card-form">
+                    <div class="form-group">
+                        <label for="card-name">Nome do Cartão</label>
+                        <input type="text" id="card-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-limit">Limite</label>
+                        <input type="number" id="card-limit" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-due-day">Dia de Vencimento</label>
+                        <input type="number" id="card-due-day" min="1" max="31" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-brand">Bandeira</label>
+                        <select id="card-brand" required>
+                            <option value="">Selecione</option>
+                            <option value="visa">Visa</option>
+                            <option value="mastercard">Mastercard</option>
+                            <option value="amex">American Express</option>
+                            <option value="elo">Elo</option>
+                            <option value="hipercard">Hipercard</option>
+                            <option value="other">Outra</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-block">Salvar Cartão</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Meus Cartões</h2>
+                <ul class="list" id="cards-list">
+                    <li class="list-item">Nenhum cartão cadastrado</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Contas Tab -->
+        <div id="bills" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Adicionar Conta</h2>
+                <form id="add-bill-form">
+                    <div class="form-group">
+                        <label for="bill-name">Nome da Conta</label>
+                        <input type="text" id="bill-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bill-value">Valor</label>
+                        <input type="number" id="bill-value" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bill-due-day">Dia de Vencimento</label>
+                        <input type="number" id="bill-due-day" min="1" max="31" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bill-category">Categoria</label>
+                        <select id="bill-category" required>
+                            <option value="">Selecione</option>
+                            <option value="housing">Moradia</option>
+                            <option value="utilities">Utilidades</option>
+                            <option value="transport">Transporte</option>
+                            <option value="food">Alimentação</option>
+                            <option value="health">Saúde</option>
+                            <option value="education">Educação</option>
+                            <option value="leisure">Lazer</option>
+                            <option value="other">Outros</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-block">Salvar Conta</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Minhas Contas</h2>
+                <ul class="list" id="bills-list">
+                    <li class="list-item">Nenhuma conta cadastrada</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Lançamentos Tab -->
+        <div id="transactions" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Novo Lançamento</h2>
+                <form id="add-transaction-form">
+                    <div class="form-group">
+                        <label for="transaction-type">Tipo</label>
+                        <select id="transaction-type" required>
+                            <option value="">Selecione</option>
+                            <option value="income">Receita</option>
+                            <option value="expense">Despesa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-description">Descrição</label>
+                        <input type="text" id="transaction-description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-value">Valor</label>
+                        <input type="number" id="transaction-value" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-date">Data</label>
+                        <input type="date" id="transaction-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-category">Categoria</label>
+                        <select id="transaction-category" required>
+                            <option value="">Selecione</option>
+                            <option value="housing">Moradia</option>
+                            <option value="utilities">Utilidades</option>
+                            <option value="transport">Transporte</option>
+                            <option value="food">Alimentação</option>
+                            <option value="health">Saúde</option>
+                            <option value="education">Educação</option>
+                            <option value="leisure">Lazer</option>
+                            <option value="salary">Salário</option>
+                            <option value="other">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="card-select-group">
+                        <label for="transaction-card">Cartão (opcional)</label>
+                        <select id="transaction-card">
+                            <option value="">Não usar cartão</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-block">Salvar Lançamento</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Últimos Lançamentos</h2>
+                <ul class="list" id="transactions-list">
+                    <li class="list-item">Nenhum lançamento registrado</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Relatórios Tab -->
+        <div id="reports" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Filtros</h2>
+                <div class="form-group">
+                    <label for="report-month">Mês</label>
+                    <select id="report-month">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="report-year">Ano</label>
+                    <input type="number" id="report-year" min="2000" max="2100">
+                </div>
+                <button class="btn btn-block" id="generate-report">Gerar Relatório</button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Resumo Financeiro</h2>
+                <div id="report-summary">
+                    <p style="text-align: center;">Selecione um mês e ano para gerar o relatório</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Distribuição de Gastos</h2>
+                <div class="chart-container" id="report-chart">
+                    <p style="text-align: center;">Nenhum dado disponível</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funções básicas para alternar entre abas
+        function showTab(tabId) {
+            // Esconde todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove a classe active de todas as guias
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostra a aba selecionada
+            document.getElementById(tabId).classList.add('active');
+            
+            // Ativa a guia correspondente
+            document.querySelector(`.nav-tab[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Atualiza os dados da aba se necessário
+            if (tabId === 'dashboard') {
+                updateDashboard();
+            } else if (tabId === 'cards') {
+                updateCardsList();
+            } else if (tabId === 'bills') {
+                updateBillsList();
+            } else if (tabId === 'transactions') {
+                updateTransactionsList();
+            }
+        }
+
+        // Adiciona eventos de clique às guias
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                showTab(tabId);
+            });
+        });
+
+        // Inicializa o LocalStorage se não existir
+        function initLocalStorage() {
+            if (!localStorage.getItem('financeOrganizer')) {
+                const initialData = {
+                    cards: [],
+                    bills: [],
+                    transactions: [],
+                    balance: 0
+                };
+                localStorage.setItem('financeOrganizer', JSON.stringify(initialData));
+            }
+        }
+
+        // Carrega os dados do LocalStorage
+        function loadData() {
+            return JSON.parse(localStorage.getItem('financeOrganizer'));
+        }
+
+        // Salva os dados no LocalStorage
+        function saveData(data) {
+            localStorage.setItem('financeOrganizer', JSON.stringify(data));
+        }
+
+        // Formata valores monetários
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        // Atualiza o dashboard
+        function updateDashboard() {
+            const data = loadData();
+            
+            // Atualiza o saldo
+            document.getElementById('current-balance').textContent = formatCurrency(data.balance || 0);
+            
+            // Atualiza o resumo de cartões
+            const cardsSummary = document.getElementById('cards-summary');
+            if (data.cards && data.cards.length > 0) {
+                cardsSummary.innerHTML = '';
+                data.cards.slice(0, 3).forEach(card => {
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+                    li.innerHTML = `
+                        <span>${card.name}</span>
+                        <span>${formatCurrency(card.limit)}</span>
+                    `;
+                    cardsSummary.appendChild(li);
+                });
+                
+                if (data.cards.length > 3) {
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+                    li.textContent = `+ ${data.cards.length - 3} cartões`;
+                    cardsSummary.appendChild(li);
+                }
+            } else {
+                cardsSummary.innerHTML = '<li class="list-item">Nenhum cartão cadastrado</li>';
+            }
+            
+            // Atualiza contas pendentes
+            updatePendingBills();
+        }
+
+        // Atualiza a lista de contas pendentes
+        function updatePendingBills() {
+            const data = loadData();
+            const pendingBillsList = document.getElementById('pending-bills');
+            const currentDate = new Date();
+            const currentDay = currentDate.getDate();
+            
+            if (data.bills && data.bills.length > 0) {
+                const pendingBills = data.bills.filter(bill => 
+                    !bill.paid && bill.dueDay <= currentDay + 5
+                );
+                
+                if (pendingBills.length > 0) {
+                    pendingBillsList.innerHTML = '';
+                    pendingBills.slice(0, 3).forEach(bill => {
+                        const li = document.createElement('li');
+                        li.className = 'list-item';
+                        li.innerHTML = `
+                            <span>${bill.name}</span>
+                            <span>${formatCurrency(bill.value)}</span>
+                            <span class="badge ${bill.dueDay < currentDay ? 'badge-danger' : 'badge-warning'}">
+                                Vence ${bill.dueDay}/${currentDate.getMonth() + 1}
+                            </span>
+                        `;
+                        pendingBillsList.appendChild(li);
+                    });
+                    
+                    if (pendingBills.length > 3) {
+                        const li = document.createElement('li');
+                        li.className = 'list-item';
+                        li.textContent = `+ ${pendingBills.length - 3} contas`;
+                        pendingBillsList.appendChild(li);
+                    }
+                } else {
+                    pendingBillsList.innerHTML = '<li class="list-item">Nenhuma conta pendente</li>';
+                }
+            } else {
+                pendingBillsList.innerHTML = '<li class="list-item">Nenhuma conta cadastrada</li>';
+            }
+        }
+
+        // Atualiza a lista de cartões
+        function updateCardsList() {
+            const data = loadData();
+            const cardsList = document.getElementById('cards-list');
+            
+            if (data.cards && data.cards.length > 0) {
+                cardsList.innerHTML = '';
+                data.cards.forEach(card => {
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+                    li.innerHTML = `
+                        <div>
+                            <strong>${card.name}</strong>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                Limite: ${formatCurrency(card.limit)} | Vence dia ${card.dueDay}
+                            </div>
+                        </div>
+                        <span class="badge">${card.brand}</span>
+                    `;
+                    cardsList.appendChild(li);
+                });
+            } else {
+                cardsList.innerHTML = '<li class="list-item">Nenhum cartão cadastrado</li>';
+            }
+        }
+
+        // Atualiza a lista de contas
+        function updateBillsList() {
+            const data = loadData();
+            const billsList = document.getElementById('bills-list');
+            
+            if (data.bills && data.bills.length > 0) {
+                billsList.innerHTML = '';
+                data.bills.forEach(bill => {
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+                    li.innerHTML = `
+                        <div>
+                            <strong>${bill.name}</strong>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                Vence dia ${bill.dueDay} | ${bill.category}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div>${formatCurrency(bill.value)}</div>
+                            <span class="badge ${bill.paid ? 'badge-success' : 'badge-warning'}">
+                                ${bill.paid ? 'Pago' : 'Pendente'}
+                            </span>
+                        </div>
+                    `;
+                    billsList.appendChild(li);
+                });
+            } else {
+                billsList.innerHTML = '<li class="list-item">Nenhuma conta cadastrada</li>';
+            }
+        }
+
+        // Atualiza a lista de transações
+        function updateTransactionsList() {
+            const data = loadData();
+            const transactionsList = document.getElementById('transactions-list');
+            
+            if (data.transactions && data.transactions.length > 0) {
+                transactionsList.innerHTML = '';
+                data.transactions.slice(0, 10).forEach(transaction => {
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+                    li.innerHTML = `
+                        <div>
+                            <strong>${transaction.description}</strong>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                ${new Date(transaction.date).toLocaleDateString('pt-BR')} | ${transaction.category}
+                            </div>
+                        </div>
+                        <span style="color: ${transaction.type === 'income' ? 'var(--success-color)' : 'var(--danger-color)'}; font-weight: 500;">
+                            ${transaction.type === 'income' ? '+' : '-'} ${formatCurrency(transaction.value)}
+                        </span>
+                    `;
+                    transactionsList.appendChild(li);
+                });
+            } else {
+                transactionsList.innerHTML = '<li class="list-item">Nenhum lançamento registrado</li>';
+            }
+        }
+
+        // Inicializa o aplicativo
+        function initApp() {
+            initLocalStorage();
+            updateDashboard();
+            
+            // Configura o formulário de cartões
+            document.getElementById('add-card-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const card = {
+                    name: document.getElementById('card-name').value,
+                    limit: parseFloat(document.getElementById('card-limit').value),
+                    dueDay: parseInt(document.getElementById('card-due-day').value),
+                    brand: document.getElementById('card-brand').value
+                };
+                
+                const data = loadData();
+                data.cards.push(card);
+                saveData(data);
+                
+                this.reset();
+                updateCardsList();
+                updateDashboard();
+                showTab('cards');
+            });
+            
+            // Configura o formulário de contas
+            document.getElementById('add-bill-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const bill = {
+                    name: document.getElementById('bill-name').value,
+                    value: parseFloat(document.getElementById('bill-value').value),
+                    dueDay: parseInt(document.getElementById('bill-due-day').value),
+                    category: document.getElementById('bill-category').value,
+                    paid: false
+                };
+                
+                const data = loadData();
+                data.bills.push(bill);
+                saveData(data);
+                
+                this.reset();
+                updateBillsList();
+                updateDashboard();
+                showTab('bills');
+            });
+            
+            // Configura o formulário de transações
+            document.getElementById('add-transaction-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const transaction = {
+                    type: document.getElementById('transaction-type').value,
+                    description: document.getElementById('transaction-description').value,
+                    value: parseFloat(document.getElementById('transaction-value').value),
+                    date: document.getElementById('transaction-date').value,
+                    category: document.getElementById('transaction-category').value,
+                    card: document.getElementById('transaction-card').value || null
+                };
+                
+                const data = loadData();
+                data.transactions.unshift(transaction); // Adiciona no início
+                
+                // Atualiza o saldo
+                if (transaction.type === 'income') {
+                    data.balance = (data.balance || 0) + transaction.value;
+                } else {
+                    data.balance = (data.balance || 0) - transaction.value;
+                }
+                
+                saveData(data);
+                
+                this.reset();
+                updateTransactionsList();
+                updateDashboard();
+                showTab('transactions');
+            });
+            
+            // Configura o botão de gerar relatório
+            document.getElementById('generate-report').addEventListener('click', function() {
+                // Implementar lógica de relatório
+                alert('Funcionalidade de relatório será implementada na próxima versão!');
+            });
+            
+            // Configura a data atual no campo de data de transação
+            document.getElementById('transaction-date').valueAsDate = new Date();
+            
+            // Atualiza o dropdown de cartões nas transações
+            updateCardDropdown();
+        }
+
+        // Atualiza o dropdown de cartões nas transações
+        function updateCardDropdown() {
+            const data = loadData();
+            const cardSelect = document.getElementById('transaction-card');
+            
+            cardSelect.innerHTML = '<option value="">Não usar cartão</option>';
+            
+            if (data.cards && data.cards.length > 0) {
+                data.cards.forEach(card => {
+                    const option = document.createElement('option');
+                    option.value = card.name;
+                    option.textContent = card.name;
+                    cardSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Inicia o aplicativo quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
